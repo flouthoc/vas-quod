@@ -36,13 +36,12 @@ pub fn run_container(rootfs: &str, command: &str, command_args: Vec<&str>){
 	let group_name = CGROUP_NAME;
 	let hostname = HOSTNAME;
 	const STACK_SIZE: usize = 1024 * 1024;
-    let stack: &mut [u8; STACK_SIZE] = &mut [0; STACK_SIZE];
+	let stack: &mut [u8; STACK_SIZE] = &mut [0; STACK_SIZE];
 	
 	let cb = Box::new(|| spawn_child(hostname, group_name, rootfs, command, command_args.as_slice()));
 
-	//SSee `man clone`
+	//See `man clone`
 	let clone_flags = sched::CloneFlags::CLONE_NEWNS | sched::CloneFlags::CLONE_NEWPID | sched::CloneFlags::CLONE_NEWCGROUP | sched::CloneFlags::CLONE_NEWUTS | sched::CloneFlags::CLONE_NEWIPC | sched::CloneFlags::CLONE_NEWNET;
-
 	let _child_pid = sched::clone(cb, stack, clone_flags, Some(Signal::SIGCHLD as i32)).expect("Failed to create child process");
 
 }

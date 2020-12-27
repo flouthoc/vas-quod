@@ -27,27 +27,28 @@ fn print_usage(program: &str, opts: Options) {
 
 
 fn main() {
+	
 	let args: Vec<String> = env::args().collect();
-    let program = args[0].clone();
+	let program = args[0].clone();
 
-    let mut opts = Options::new();
-    opts.optopt("r", "rootfs", "Path to root file-system eg. --rootfs /home/alpinefs", "path");
+	let mut opts = Options::new();
+	opts.optopt("r", "rootfs", "Path to root file-system eg. --rootfs /home/alpinefs", "path");
 	opts.optopt("c", "command", "Command to be executed eg. --command `curl http://google.com`", "command");
-    opts.optflag("h", "help", "print this help menu");
-    let matches = match opts.parse(&args[1..]) {
-        Ok(m) => { m }
-        Err(_f) => {
+	opts.optflag("h", "help", "print this help menu");
+	let matches = match opts.parse(&args[1..]) {
+		Ok(m) => { m }
+		Err(_f) => {
 			println!("Error: Unrecognzied Options");
-        	print_usage(&program, opts);
+			print_usage(&program, opts);
 			return
 		}
-    };
-    if matches.opt_present("h") || !matches.opt_present("r") || !matches.opt_present("c") {
-        print_usage(&program, opts);
-        return;
-    }
+	};
+	if matches.opt_present("h") || !matches.opt_present("r") || !matches.opt_present("c") {
+		print_usage(&program, opts);
+		return;
+	}
 
-    let rootfs = matches.opt_str("r");
+	let rootfs = matches.opt_str("r");
 	let command_string = matches.opt_str("c");
 	run(rootfs, command_string);
 }
