@@ -4,8 +4,7 @@
  A tiny minimal container runtime written in Rust.
  The idea is to support a minimal isolated containers without using existing runtimes, vas-quod uses linux [syscall](https://en.wikipedia.org/wiki/System_call) to achieve isolated containers { namespaces, cgroups, chroot, unshare }.
  
- ![](../blob/main/assets/vas-quod.png?raw=true)
- 
+ ![Image](../main/assets/vas-quod.png?raw=true) 
 
 ## Usage
 
