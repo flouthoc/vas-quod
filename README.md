@@ -21,10 +21,14 @@ Options:
 
 * #### rootfs
 Path to root filesystem
+
+Download a sample root filesystem from https://github.com/flouthoc/vas-quod/releases/download/rootfs/rootfs.tar.gz
+
 * #### command
 Container entrypoint command
 
 ## Roadmap
 * Add Support for network bridges.
 * Implement `-m` or `--mount` to mount read-only files from host machine.
+
 
