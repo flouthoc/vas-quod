@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 getopts = "0.2"
 nix = "0.19.1"
+simple-error = "0.2.2"
