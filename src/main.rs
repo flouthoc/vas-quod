@@ -67,6 +67,7 @@ fn determine_command_tuple<'a, T: AsRef<str> + 'a>(shell_command: &'a Option<T>,
 	// Prepend shell and command string if a command string is given.
 	if let Some(shell_command) = shell_command {
 		vec.push("/bin/sh");
+		vec.push("-c");
 		vec.push(shell_command.as_ref());
 	}
 
