@@ -21,8 +21,10 @@ fn spawn_child(hostname: &str, cgroup_name: &str, rootfs: &str, command: &str, c
 	namespace::create_isolated_namespace();	
 	cgroup::cgroup_init(cgroup_name);
 	set_hostname(hostname);
-	
+
+	mount::mount_root_fs(rootfs);	
 	filesystem::set_root_fs(rootfs);
+	mount::unmount_host_root_fs();
 	mount::mount_proc();	
 	
 	Command::new(command).args(command_args).spawn().expect("Failed to execute container command").wait().unwrap();
