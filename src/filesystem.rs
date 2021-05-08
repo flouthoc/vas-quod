@@ -2,6 +2,7 @@ use std::fs;
 use std::path::PathBuf;
 use nix::unistd;
 use nix::sys::stat;
+use nix::Error;
 
 static ROOT_PATH: &str = "/";
 static OLD_ROOT_PATH: &str = ".oldroot";
