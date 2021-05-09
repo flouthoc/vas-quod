@@ -1,5 +1,8 @@
 extern crate getopts;
 extern crate simple_error;
+extern crate clap;
+
+use clap::{Arg, App};
 use getopts::Options;
 use simple_error::require_with;
 use std::cmp::min;
@@ -20,38 +23,57 @@ fn print_usage(program: &str, opts: &Options) {
 
 fn main() {
 	let args: Vec<String> = env::args().collect();
-	let program = args[0].clone();
-	let mut opts = Options::new();
-	opts.optopt("r", "rootfs", "Path to root file-system eg. --rootfs /home/alpinefs", "path");
-	opts.optopt("c", "command", "Command to be executed eg. --command `curl http://google.com`", "command");
-	opts.optflag("h", "help", "Print this help menu");
+	let _program = args[0].clone();
+	let command_vec: Vec<&str>;
+	let rootfs: &str;
 
-	// Find the conventional "--" that separates out remaing arguments.
-	let end_processable = args.iter().position(|s| s == "--").unwrap_or_else(|| args.len());
-	let begin_unprocessable = min(end_processable + 1, args.len());
+	let mut app = App::new("vas-quod")
+		.version("1.0")
+		.about("Linux Container runtime")
+		.arg(Arg::new("command")
+			.short('c')
+			.long("command")
+			.value_name("command")
+			.about("command to be executed eg. --command 'curl http://google.com'")
+			.min_values(1)
+			.takes_value(true))
+		.arg(Arg::new("rootfs")
+			.short('r')
+			.long("rootfs")
+			.value_name("rootfs")
+			.about("Path to root file-system eg. --rootfs /home/alpinefs")
+			.takes_value(true))
+		.subcommand(App::new("spec")
+			.about("create a new specification file")
+			.arg(Arg::new("rootless")
+				.about("Generate a rootless spec"))
+			.arg(Arg::new("bundle")
+				.about("Path to bundle"))
+		);
 
-	let matches = opts.parse(&args[1..end_processable]).ok().unwrap_or_else(|| {
-		println!("Error: Unrecognzied options");
-		print_usage(&program, &opts);
-		process::exit(7);
-	});
-
-	// Exits early, but doesn't lead to non-zero exit.
-	if matches.opt_present("h") {
-		print_usage(&program, &opts);
+	let matches = app.get_matches_mut();
+	if let Some(ref matches) = matches.subcommand_matches("spec") {
+		// TODO: spec
 		return;
 	}
 
-	let rootfs = matches.opt_str("r").unwrap_or_else(|| {
-		println!("Error: Please pass `--rootfs <path>`");
-		print_usage(&program, &opts);
-		process::exit(7);
-	});
+	if let Some(rootfs_v) = matches.value_of("rootfs") {
+		rootfs = rootfs_v;
+	}else{
+		app.print_long_help();
+		return;
+	}
 
-	let c = matches.opt_str("c"); // NB: Seperate let binding for lifetime.
-	let (command, args) = determine_command_tuple(&c, &args[begin_unprocessable..args.len()]).ok().unwrap_or_else(|| {
-		println!("Error: Please pass `--command <shell command>` or `-- <command> <argument>...`");
-		print_usage(&program, &opts);
+	if let Some(_cmd) = matches.values_of("command") {
+		command_vec = matches.values_of("command").unwrap().collect();
+	} else {
+		app.print_long_help();
+		return;
+	}
+
+	let c = command_vec[0];
+	let (command, args) = determine_command_tuple(&c, &command_vec).ok().unwrap_or_else(|| {
+		app.print_long_help();
 		process::exit(7);
 	});
 
@@ -61,15 +83,15 @@ fn main() {
 /// Determines based on the inputs whether we are going to invoke a shell, with
 /// shell interpretation, or a simple unescaped argument vector.
 /// Rearranges arguments as needed, but doesn't reallocate.
-fn determine_command_tuple<'a, T: AsRef<str> + 'a>(shell_command: &'a Option<T>, argv: &'a [T]) -> Result<(&'a str, Vec<&'a str>), Box<dyn Error>> {
+fn determine_command_tuple<'a, T: AsRef<str> + 'a>(shell_command: &'a T, argv: &'a [T]) -> Result<(&'a str, Vec<&'a str>), Box<dyn Error>> {
 	let mut vec: Vec<&str> = vec![];
 
 	// Prepend shell and command string if a command string is given.
-	if let Some(shell_command) = shell_command {
-		vec.push("/bin/sh");
-		vec.push("-c");
-		vec.push(shell_command.as_ref());
-	}
+	//if let Some(shell_command) = shell_command {
+	vec.push("/bin/sh");
+	vec.push("-c");
+	//vec.push(shell_command.as_ref());
+	//}
 
 	// The args given will be the whole command if there's no shell string;
 	// otherwise, they'll be added to the argument vector.
