@@ -15,6 +15,7 @@ mod cgroup;
 mod filesystem;
 mod mount;
 mod namespace;
+mod spec;
 
 fn print_usage(program: &str, opts: &Options) {
 	let brief = format!("Usage: {} vas-quod [options] [-- <command> <argument>...]", program);
@@ -46,14 +47,30 @@ fn main() {
 		.subcommand(App::new("spec")
 			.about("create a new specification file")
 			.arg(Arg::new("rootless")
+				.long("rootless")
+				.required(false)
+				.takes_value(false)
 				.about("Generate a rootless spec"))
 			.arg(Arg::new("bundle")
+				.short('b')
+				.long("bundle")
+				.takes_value(true)
 				.about("Path to bundle"))
 		);
 
 	let matches = app.get_matches_mut();
 	if let Some(ref matches) = matches.subcommand_matches("spec") {
-		// TODO: spec
+		let mut bundle: &str = "";
+		let mut rootless: bool = false;
+		
+		if let Some(bundle_v) = matches.value_of("bundle"){
+			bundle = bundle_v;
+		}
+		if matches.is_present("rootless"){
+			rootless = true;
+		}
+
+		spec::generate_spec(bundle, rootless);	
 		return;
 	}
 
