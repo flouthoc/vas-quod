@@ -16,6 +16,7 @@ mod filesystem;
 mod mount;
 mod namespace;
 mod spec;
+mod run;
 
 fn print_usage(program: &str, opts: &Options) {
 	let brief = format!("Usage: {} vas-quod [options] [-- <command> <argument>...]", program);
@@ -55,7 +56,28 @@ fn main() {
 				.short('b')
 				.long("bundle")
 				.takes_value(true)
-				.about("Path to bundle"))
+				.about("Path to bundle")))
+		.subcommand(App::new("run")
+			.about("run a container")
+			.arg(Arg::new("bundle")
+				.short('b')
+				.long("bundle")
+				.takes_value(true)
+				.about("container bundle"))
+			.arg(Arg::new("deatch")
+				.short('d')
+				.long("deatch")
+				.takes_value(true)
+				.about("detach from the parent"))
+			.arg(Arg::new("pid-file")
+				.long("pid-file")
+				.takes_value(true)
+				.about("where to write the PID of the container"))
+			.arg(Arg::new("config")
+				.long("config")
+				.short('f')
+				.takes_value(true)
+				.about("override the config file name"))
 		);
 
 	let matches = app.get_matches_mut();
@@ -71,6 +93,26 @@ fn main() {
 		}
 
 		spec::generate_spec(bundle, rootless);	
+		return;
+	}
+	if let Some(ref matches) = matches.subcommand_matches("run") {
+		let mut bundle: &str = "";
+		let mut config: &str = "";
+		let mut detach: bool = false;
+		let mut pid_file: &str = "";
+		if let Some(bundle_v) = matches.value_of("bundle"){
+			bundle = bundle_v;
+		}
+		if let Some(config_v) = matches.value_of("config"){
+			config = config_v;
+		}
+		if let Some(pid_file_v) = matches.value_of("pid-file"){
+			pid_file = pid_file_v;
+		}
+		if matches.is_present("detach"){
+			detach = true;
+		}
+		run::run(config, bundle);
 		return;
 	}
 
