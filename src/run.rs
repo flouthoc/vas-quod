@@ -29,4 +29,7 @@ pub fn run(config: &str, bundle: &str) {
 	};
 	
 	// TODO: Implement core	
+	runtime::run_container(&spec.root.as_ref().unwrap().path, 
+				spec.process.as_ref().unwrap().args.as_ref().unwrap().clone().into_iter().nth(0).as_ref().unwrap(), 
+				[].to_vec());
 }
