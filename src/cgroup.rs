@@ -8,6 +8,7 @@ use std::os::unix::fs::PermissionsExt;
 
 static CGROUP_PATH: &str = "/sys/fs/cgroup/pids";
 
+// no v2 :(
 pub fn cgroup_init(group_name: &str) {	
 	let mut cgroups_path = PathBuf::from(CGROUP_PATH);
 	if !cgroups_path.exists() {
@@ -28,8 +29,8 @@ pub fn cgroup_init(group_name: &str) {
 	let procs = cgroups_path.join("cgroup.procs");
 	
 	fs::write(pids_max, b"20").unwrap();
-    fs::write(notify_on_release, b"1").unwrap();
-    fs::write(procs,format!("{}", unistd::getpid().as_raw())).unwrap();
+	fs::write(notify_on_release, b"1").unwrap();
+	fs::write(procs,format!("{}", unistd::getpid().as_raw())).unwrap();
 
 }
 
