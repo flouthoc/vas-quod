@@ -28,7 +28,9 @@ Download a sample root filesystem from https://github.com/flouthoc/vas-quod/rele
 Container entrypoint command
 
 ## Roadmap
-* Add Support for network bridges.
+* [Very-Low-priority] Add Support for network bridges.
 * Implement `-m` or `--mount` to mount read-only files from host machine.
-
-
+* [Low-priority] Add Support for network bridges.
+* [Low-priority] Implement `-m` or `--mount` to mount read-only files from host machine.
+* [Medium-priorty] `rootless` support
+* [High-priority] Somehow run with docker
