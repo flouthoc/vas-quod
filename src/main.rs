@@ -9,6 +9,8 @@ use std::cmp::min;
 use std::env;
 use std::error::Error;
 use std::process;
+use std::cell::RefCell;
+use nix::sys::wait::WaitStatus;
 
 mod runtime;
 mod cgroup;
@@ -136,7 +138,21 @@ fn main() {
 		process::exit(7);
 	});
 
-	runtime::run_container(&rootfs, command, args);
+	let exit: Result<WaitStatus, _> = runtime::run_container(&rootfs, command, args);
+	match exit {
+		Ok(exit_result) => {
+			match exit_result {
+				WaitStatus::Exited(pid, code) => {
+					println!("Exit code {0} for pid {1}", code, pid);
+					std::process::exit(code);
+				},
+				_ => panic!("Unexpected exit status: {:?}", exit_result),
+			}
+		},
+		Err(e) => {
+			panic!("Error waiting for child process: {0}", e);
+		}
+	}
 }
 
 /// Determines based on the inputs whether we are going to invoke a shell, with
