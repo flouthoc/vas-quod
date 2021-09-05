@@ -42,7 +42,7 @@ impl Drop for Runner<'_> {
 
 fn spawn_child<'l, 's : 'l>(hostname: &str, cgroup_name: &str, rootfs: &str, command: &'s str, command_args: &'s [&'s str]) -> isize {
 
-	namespace::create_isolated_namespace();	
+	namespace::create_isolated_namespace();
 	cgroup::cgroup_init(cgroup_name);
 	set_hostname(hostname);
 
@@ -63,7 +63,7 @@ pub fn run_container(rootfs: &str, command: &str, command_args: Vec<&str>) -> ni
 	let hostname = HOSTNAME;
 	const STACK_SIZE: usize = 1024 * 1024;
 	let stack: &mut [u8; STACK_SIZE] = &mut [0; STACK_SIZE];
-	
+
 	let cb = Box::new(|| spawn_child(hostname, group_name, rootfs, command,
 									 command_args.as_slice()));
 
